@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 void csucc_readValue(char succFile[32], char valueName[32], void *var) { //csucc_readValue opens succFile and writes the value to *var 
 	FILE * fp;
@@ -6,54 +7,41 @@ void csucc_readValue(char succFile[32], char valueName[32], void *var) { //csucc
 	fp = fopen(succFile, "r");
 	if (fp == NULL) {
 		perror("File can't be opened");
+		fclose(fp);
 		return; 
 	}
+
+	char temp[255];
 	
-	//this needs cleanup.
-	int c;
-	int found = 0;
-	char n = 0;
-	char tempValue[256];
-	while (1==1) { //check characters in succFile to see if they match valueName.
-		c = fgetc(fp);
-		if (c == valueName[n]) {
-			found = 1;
-			n++;
-		} else {
-			if (c == ":" &&	found == 1) { //get value and put it into tempValue, check for line end.
-				printf("bryh");
-				int i;
-				fgetc(fp);
-				while(c != "\n" || feof(fp)) {
-					tempValue[i] = c;
-					i++;
-					c = fgetc(fp);
-					printf("%c", c);
-				}
-				break;
-			} else {
-				found = 0;
-				n = 0;
+	while (!feof(fp)) { //Search file
+		fgets(temp, 255, fp);
+		if (strstr(temp, valueName) != NULL) { //Match found
+			if (strstr(temp, ":") != NULL) { //Read value and place into var
+				char *colon = strstr(temp, ":");
+				//char *location = colon - temp;
+				
+				char var = sscanf(colon, "%s");
+				printf("%s\n", var);
+				
+				fclose(fp);
+				return;
+			} else { //Check next line for "-"
+				
 			}
 		}
-
-		if (feof(fp)) { break; }
 	}
 
-	if (found == 1) {
-		//put value into var
-	} else {
-		perror("Value not found");
-		return;
-	}	
+	fclose(fp);
+	return;
 }
 
 void csucc_writeValue(char succFile[32], char valueName[32], void *var) { //csucc_writeValue writes *var to the valueName
 	
 }
 
-int main(void) {
-	int war = 322;
+int main(void) { //testing
+	char war[64] = "bruh";
 	csucc_readValue("test.succ", "name", war);
+	//printf("%s\n", war);
 	return 0;
 }
