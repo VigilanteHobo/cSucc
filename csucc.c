@@ -18,11 +18,18 @@ void csucc_readValue(char succFile[32], char valueName[32], void *var) { //csucc
 		if (strstr(temp, valueName) != NULL) { //Match found
 			if (strstr(temp, ":") != NULL) { //Read value and place into var
 				char *colon = strstr(temp, ":");
-				//char *location = colon - temp;
+				char *location = colon - temp; //Use this pointer to get the colon location in temp table
 				
-				char var = sscanf(colon, "%s");
-				printf("%s\n", var);
-				
+				int i = location+1;
+				int type = 1; //0 NULL 1 Integer 2 Float 3 String
+				int isArray = 0;
+				while (temp[i] != "\n") {
+					if (temp[i] == "(" || temp[i] == ")") isArray = 1;
+					if (temp[i] == '"' || temp[i] == "'") type = 3;
+					if (temp[i] == "." && type != 3) type = 2; //I don't know if this is a good way, should work for now.
+					if (temp[i] == 0 && i == location) { type = 0; var = NULL; return; }
+				}
+
 				fclose(fp);
 				return;
 			} else { //Check next line for "-"
